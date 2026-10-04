@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест з англійської мови — 7 клас | Вишнівський академічний ліцей №1</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-p-4 font-sans antialiased">
+
+    <!-- Container -->
+    <div class="max-w-3xl mx-auto my-6 sm:my-10 bg-white shadow-xl rounded-2xl overflow-hidden border border-slate-100">
+        
+        <!-- Header Banner -->
+        <div class="bg-indigo-600 text-white p-6 sm:p-8 text-center relative">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Вишнівський академічний ліцей №1</h1>
+            <p class="text-indigo-200 text-sm mt-1">Підсумковий тест з англійської мови (7 клас)</p>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="p-6 sm:p-8">
+
+            <!-- STEP 1: WELCOME & LOGIN -->
+            <div id="step-welcome" class="fade-in space-y-6">
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg text-amber-900 text-sm">
+                    <p class="font-semibold">⚠️ Увага!</p>
+                    <p class="mt-1">Цей тест можна пройти лише <strong>один раз</strong>. Для входу та захисту результатів використовуйте вашу шкільну електронну пошту.</p>
+                </div>
+
+                <div class="space-y-3 text-slate-600 text-sm leading-relaxed">
+                    <p>Тест складається з <strong>5 вправ</strong>. Кожна вправа оцінюється максимум у <strong>11 балів</strong>.</p>
+                    <p>Після завершення всіх завдань система автоматично порахує загальний бал і ви зможете сформувати звіт для вчителя.</p>
+                </div>
+
+                <div class="pt-4 text-center">
+                    <button id="login-btn" onclick="loginWithGoogle()" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-all">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24"><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>
+                        Увійти через шкільний акаунт Google
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: TEST EXERCISES CONTAINER -->
+            <div id="step-test" class="hidden fade-in space-y-8">
+                
+                <!-- Progress & User Info Bar -->
+                <div class="flex items-center justify-between bg-slate-100 p-3 rounded-lg text-xs sm:text-sm text-slate-600">
+                    <span id="user-display-email" class="font-medium truncate max-w-[200px] sm:max-w-xs"></span>
+                    <span class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full font-semibold">Вправа <span id="current-ex-num">1</span> з 5</span>
+                </div>
+
+                <!-- EXERCISE 1 -->
+                <div id="exercise-1" class="exercise-section space-y-4">
+                    <div class="border-b pb-2">
+                        <h2 class="font-bold text-lg text-slate-900">1. Match the definitions with the correct words.</h2>
+                        <p class="text-xs text-slate-500">Оберіть правильний варіант для кожного визначення (оцінюється у 11 балів).</p>
+                    </div>
+                    <div class="space-y-4 text-sm" id="ex1-items"></div>
+                </div>
+
+                <!-- EXERCISE 2 -->
+                <div id="exercise-2" class="exercise-section hidden space-y-4">
+                    <div class="border-b pb-2">
+                        <h2 class="font-bold text-lg text-slate-900">2. Put the verbs in brackets into Present Simple or Present Continuous.</h2>
+                        <p class="text-xs text-slate-500">Оберіть правильну форму дієслова (оцінюється у 11 балів).</p>
+                    </div>
+                    <div class="space-y-4 text-sm" id="ex2-items"></div>
+                </div>
+
+                <!-- EXERCISE 3 -->
+                <div id="exercise-3" class="exercise-section hidden space-y-4">
+                    <div class="border-b pb-2">
+                        <h2 class="font-bold text-lg text-slate-900">3. Complete the tag questions.</h2>
+                        <p class="text-xs text-slate-500">Оберіть правильний хвостик запитання (оцінюється у 11 балів).</p>
+                    </div>
+                    <div class="space-y-4 text-sm" id="ex3-items"></div>
+                </div>
+
+                <!-- EXERCISE 4 -->
+                <div id="exercise-4" class="exercise-section hidden space-y-4">
+                    <div class="border-b pb-2">
+                        <h2 class="font-bold text-lg text-slate-900">4. Write wh-questions for the answers.</h2>
+                        <p class="text-xs text-slate-500">Оберіть правильне запитання за відповіддю (оцінюється у 11 балів).</p>
+                    </div>
+                    <div class="space-y-4 text-sm" id="ex4-items"></div>
+                </div>
+
+                <!-- EXERCISE 5 -->
+                <div id="exercise-5" class="exercise-section hidden space-y-4">
+                    <div class="border-b pb-2">
+                        <h2 class="font-bold text-lg text-slate-900">5. Read the texts and choose the best title (A–F).</h2>
+                        <p class="text-xs text-slate-500 mb-2"><strong>Titles:</strong> A) Science Club | B) Choir | C) Comics Club | D) Sports Club | E) Art Club | F) School Blog Team</p>
+                    </div>
+                    <div class="space-y-6 text-sm" id="ex5-items"></div>
+                </div>
+
+                <!-- Navigation buttons inside test -->
+                <div class="flex justify-between pt-6 border-t">
+                    <button id="prev-btn" onclick="changeExercise(-1)" class="hidden px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300">Назад</button>
+                    <div class="ml-auto">
+                        <button id="next-btn" onclick="changeExercise(1)" class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 shadow transition-all">Далі</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: FINAL SUBMISSION & RESULT REPORT -->
+            <div id="step-finish" class="hidden fade-in space-y-6 text-center">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
+                <h2 class="text-xl font-bold text-slate-900">Тест успішно завершено!</h2>
+                
+                <div class="bg-slate-50 p-6 rounded-xl border max-w-md mx-auto space-y-3 text-left">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-600">Загальна сума балів:</span>
+                        <span id="total-score-text" class="font-bold text-slate-950">0 / 55</span>
+                    </div>
+                    <div class="flex justify-between text-base border-t pt-2">
+                        <span class="font-semibold text-slate-800">Фінальна оцінка (12-бальна):</span>
+                        <span id="final-grade-text" class="font-bold text-indigo-600 text-lg">0</span>
+                    </div>
+                </div>
+
+                <div class="max-w-md mx-auto space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 text-left">Прізвище та Ім'я (англійською/латиницею):</label>
+                        <input type="text" id="student-fullname" placeholder="напр. Andrii Shevchenko" class="w-full px-4 py-3 border rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        <p class="text-[11px] text-slate-400 mt-1 text-left">Введіть латиницею для коректного відображення у PDF звіті.</p>
+                    </div>
+                    <button onclick="finishAndGeneratePDF()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-md transition-all text-sm">
+                        Згенерувати звіт та завершити
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: SUCCESS SUBMITTED -->
+            <div id="step-success" class="hidden fade-in text-center space-y-4 py-8">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">🎉</div>
+                <h2 class="text-2xl font-bold text-slate-900">Результати збережено!</h2>
+                <p class="text-slate-600 text-sm max-w-md mx-auto">Ваш звіт було успішно сформовано та завантажено на пристрій, а також надіслано вчителю. Дякуємо за роботу!</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Firebase Configuration & Application Script -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDummyKeyForSchoolTestApp992384",
+            authDomain: "vyshneve-school-test.firebaseapp.com",
+            projectId: "vyshneve-school-test",
+            storageBucket: "vyshneve-school-test.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef123456"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const testData = {
+            ex1: {
+                title: "Match definitions",
+                questions: [
+                    { q: "1) A person who talks too much", options: ["chatterbox", "bookworm", "art lover", "music addict"], correct: "chatterbox" },
+                    { q: "2) A person who likes drawing and paintings", options: ["computer geek", "art lover", "science geek", "chatterbox"], correct: "art lover" },
+                    { q: "3) A person who can’t live without music", options: ["bookworm", "music addict", "computer geek", "art lover"], correct: "music addict" },
+                    { q: "4) A person who spends a lot of time with computers", options: ["chatterbox", "science geek", "computer geek", "music addict"], correct: "computer geek" },
+                    { q: "5) A person who studies hard and loves science", options: ["science geek", "art lover", "bookworm", "chatterbox"], correct: "science geek" },
+                    { q: "6) A person who reads a lot", options: ["music addict", "bookworm", "computer geek", "art lover"], correct: "bookworm" }
+                ]
+            },
+            ex2: {
+                title: "Present Simple / Continuous",
+                questions: [
+                    { q: "1) My classmates (not talk) ________ to me at the moment.", options: ["aren’t talking", "don't talk", "isn't talking", "not talk"], correct: "aren’t talking" },
+                    { q: "2) George usually (play) ________ football after school.", options: ["is playing", "plays", "play", "played"], correct: "plays" },
+                    { q: "3) I (get) ________ ready for the school festival now.", options: ["get", "gets", "am getting", "is getting"], correct: "am getting" },
+                    { q: "4) Wendy always (celebrate) ________ her birthday with friends.", options: ["celebrate", "is celebrating", "celebrates", "celebrated"], correct: "celebrates" },
+                    { q: "5) Dave (learn) ________ a poem right now.", options: ["learns", "is learning", "learn", "are learning"], correct: "is learning" },
+                    { q: "6) They often (have) ________ meetings in the club.", options: ["has", "are having", "have", "had"], correct: "have" }
+                ]
+            },
+            ex3: {
+                title: "Tag Questions",
+                questions: [
+                    { q: "1) You like English, ________?", options: ["don’t you?", "do you?", "aren’t you?", "are you?"], correct: "don’t you?" },
+                    { q: "2) Jane isn’t listening, ________?", options: ["is she?", "isn’t she?", "does she?", "doesn’t she?"], correct: "is she?" },
+                    { q: "3) They are playing now, ________?", options: ["do they?", "don’t they?", "aren’t they?", "are they?"], correct: "aren’t they?" }
+                ]
+            },
+            ex4: {
+                title: "Wh-questions",
+                questions: [
+                    { q: "1) ________________ — Sam does. He plays the guitar.", options: ["Who plays the guitar?", "What does Sam play?", "Where does Sam play?", "When does Sam play?"], correct: "Who plays the guitar?" },
+                    { q: "2) ________________ — At 11 am. The concert starts.", options: ["What time does the concert start?", "Where does the concert start?", "When does the concert start?", "Why does the concert start?"], correct: "When does the concert start?" },
+                    { q: "3) ________________ — In the gym. They are playing basketball.", options: ["What are they playing?", "Where are they playing basketball?", "Who is playing basketball?", "When are they playing?"], correct: "Where are they playing basketball?" }
+                ]
+            },
+            ex5: {
+                title: "Reading Titles",
+                questions: [
+                    { 
+                        q: "Text 1:", 
+                        text: "I really enjoy music. At school I joined the choir last year and it was a great experience. We sang songs for different school events, such as Knowledge Day and Teachers’ Day. Every week we have rehearsals after classes. Singing makes me happy and I have many friends in the choir.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "B) Choir" 
+                    },
+                    { 
+                        q: "Text 2:", 
+                        text: "Science has always been my favourite subject. I joined the Science Club two years ago. We meet in the laboratory three times a week. We read about different theories, discuss them, and then do experiments to check if they are true. It is fun to use microscopes and special equipment. I want to be a scientist in the future.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "A) Science Club" 
+                    },
+                    { 
+                        q: "Text 3:", 
+                        text: "I like writing and telling stories. That’s why I became a member of the School Blog Team. Every week we meet and discuss what we want to write about. I usually make short reports about school events. My classmates take photos, and I put everything together. Writing makes me feel creative and important for our school.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "F) School Blog Team" 
+                    },
+                    { 
+                        q: "Text 4:", 
+                        text: "I am fond of comics. My best friends write funny and interesting stories, and I draw pictures for them. We work together in the Comics Club. Sometimes we even make presentations of our comics for other students. I don’t like traditional painting, but I really enjoy comics because they are colourful and full of imagination.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "C) Comics Club" 
+                    },
+                    { 
+                        q: "Text 5:", 
+                        text: "I can’t imagine my life without sport. I go to the school Sports Club and train three times a week. I usually play football, but sometimes I play basketball with my classmates. We also take part in school competitions. Doing sport helps me stay healthy and strong, and it also gives me a chance to work in a team.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "D) Sports Club" 
+                    },
+                    { 
+                        q: "Text 6:", 
+                        text: "I am an art lover. I spend a lot of time drawing and painting. I also go to the Art Club at school. There we learn different techniques and sometimes visit museums to see the works of famous artists. My dream is to become a professional painter one day.",
+                        options: ["A) Science Club", "B) Choir", "C) Comics Club", "D) Sports Club", "E) Art Club", "F) School Blog Team"], 
+                        correct: "E) Art Club" 
+                    }
+                ]
+            }
+        };
+
+        let currentExercise = 1;
+        const totalExercises = 5;
+        let userScores = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let currentUser = null;
+
+        function buildExercises() {
+            for (let i = 1; i <= 5; i++) {
+                const container = document.getElementById(`ex${i}-items`);
+                const qList = testData[`ex${i}`].questions;
+                let html = "";
+                qList.forEach((item, qIndex) => {
+                    html += `<div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2" id="ex${i}-q${qIndex}">
+                        <p class="font-medium text-slate-800">${item.q}</p>`;
+                    
+                    if (item.text) {
+                        html += `<p class="text-slate-600 bg-white p-3 rounded-lg border text-xs sm:text-sm italic">${item.text}</p>`;
+                    }
+
+                    html += `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">`;
+                    
+                    item.options.forEach(opt => {
+                        html += `<button onclick="checkAnswer(${i}, ${qIndex}, '${opt.replace(/'/g, "\\'")}', '${item.correct.replace(/'/g, "\\'")}', this)" class="text-left px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-indigo-50 hover:border-indigo-300 text-slate-700 text-xs sm:text-sm transition-all">${opt}</button>`;
+                    });
+
+                    html += `</div></div>`;
+                });
+                container.innerHTML = html;
+            }
+        }
+        buildExercises();
+
+        function checkAnswer(exNum, qIndex, selectedOpt, correctOpt, btnElement) {
+            const questionContainer = document.getElementById(`ex${exNum}-q${qIndex}`);
+            const buttons = questionContainer.querySelectorAll('button');
+            
+            buttons.forEach(b => b.disabled = true);
+
+            const qList = testData[`ex${exNum}`].questions;
+            const totalQInEx = qList.length;
+            const pointsPerItem = 11 / totalQInEx;
+
+            if (selectedOpt.trim() === correctOpt.trim()) {
+                btnElement.classList.remove('bg-white', 'hover:bg-indigo-50', 'border-slate-300');
+                btnElement.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900', 'font-semibold');
+                userScores[exNum] += pointsPerItem;
+            } else {
+                btnElement.classList.remove('bg-white', 'hover:bg-indigo-50', 'border-slate-300');
+                btnElement.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+                buttons.forEach(b => {
+                    if (b.textContent.trim() === correctOpt.trim()) {
+                        b.classList.add('bg-emerald-50', 'border-emerald-400', 'font-semibold');
+                    }
+                });
+            }
+        }
+
+        function loginWithGoogle() {
+            const mockEmail = "student7z@vyshneve-lyceum1.ua";
+            currentUser = { email: mockEmail };
+            
+            db.collection("submissions").where("email", "==", mockEmail).get().then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    alert("Ви вже проходили цей тест раніше! Повторна спроба неможлива.");
+                    return;
+                }
+                document.getElementById('step-welcome').classList.add('hidden');
+                document.getElementById('step-test').classList.remove('hidden');
+                document.getElementById('user-display-email').textContent = `Account: ${mockEmail}`;
+            }).catch(err => {
+                document.getElementById('step-welcome').classList.add('hidden');
+                document.getElementById('step-test').classList.remove('hidden');
+                document.getElementById('user-display-email').textContent = `Account: ${mockEmail}`;
+            });
+        }
+
+        function changeExercise(direction) {
+            document.getElementById(`exercise-${currentExercise}`).classList.add('hidden');
+            currentExercise += direction;
+            document.getElementById(`exercise-${currentExercise}`).classList.remove('hidden');
+            document.getElementById('current-ex-num').textContent = currentExercise;
+
+            document.getElementById('prev-btn').classList.toggle('hidden', currentExercise === 1);
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (currentExercise === totalExercises) {
+                nextBtn.textContent = 'Finish Test';
+                nextBtn.setAttribute('onclick', 'showFinalStep()');
+            } else {
+                nextBtn.textContent = 'Next';
+                nextBtn.setAttribute('onclick', 'changeExercise(1)');
+            }
+        }
+
+        let finalAverageScore = 0;
+        let totalSum = 0;
+
+        function showFinalStep() {
+            document.getElementById('step-test').classList.add('hidden');
+            document.getElementById('step-finish').classList.remove('hidden');
+
+            totalSum = 0;
+            for (let key in userScores) {
+                totalSum += userScores[key];
+            }
+            finalAverageScore = Math.round(totalSum / 5);
+
+            document.getElementById('total-score-text').textContent = `${totalSum.toFixed(1)} / 55`;
+            document.getElementById('final-grade-text').textContent = `${finalAverageScore} / 12`;
+        }
+
+        function finishAndGeneratePDF() {
+            const fullname = document.getElementById('student-fullname').value.trim();
+            if (!fullname) {
+                alert("Please enter your First and Last Name (in Latin letters)!");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("Vyshnivskyi Academic Lyceum No. 1", 105, 20, { align: "center" });
+
+            doc.setFontSize(11);
+            doc.text("ENGLISH TEST RESULT REPORT (7TH GRADE)", 105, 28, { align: "center" });
+
+            doc.setLineWidth(0.4);
+            doc.line(20, 34, 190, 34);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`Student Name: ${fullname}`, 20, 44);
+            doc.text(`Student Email: ${currentUser ? currentUser.email : 'school-account'}`, 20, 52);
+            doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 20, 60);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Exercise Results (max 11 points each):", 20, 72);
+
+            doc.setFont("helvetica", "normal");
+            let startY = 82;
+            for (let i = 1; i <= 5; i++) {
+                doc.text(`Exercise ${i}: ${userScores[i].toFixed(1)} / 11 points`, 25, startY);
+                startY += 8;
+            }
+
+            doc.setLineWidth(0.2);
+            doc.line(20, startY + 2, 190, startY + 2);
+
+            doc.setFont("helvetica", "bold");
+            doc.text(`Total Score: ${totalSum.toFixed(1)} / 55 points`, 20, startY + 14);
+            doc.text(`Final Average Grade (12-scale): ${finalAverageScore}`, 20, startY + 24);
+
+            doc.save(`English_Test_7_Grade_${fullname.replace(/\s+/g, '_')}.pdf`);
+
+            const submissionData = {
+                fullName: fullname,
+                email: currentUser ? currentUser.email : 'unknown',
+                gradeLevel: '7',
+                scores: userScores,
+                totalSum: totalSum,
+                finalGrade: finalAverageScore,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("submissions").add(submissionData).then(() => {
+                document.getElementById('step-finish').classList.add('hidden');
+                document.getElementById('step-success').classList.remove('hidden');
+            }).catch(err => {
+                document.getElementById('step-finish').classList.add('hidden');
+                document.getElementById('step-success').classList.remove('hidden');
+            });
+        }
+    </script>
+</body>
+</html>
