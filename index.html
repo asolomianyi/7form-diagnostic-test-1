@@ -308,29 +308,21 @@
         }
 
         function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then((result) => {
-                const user = result.user;
-                currentUser = { email: user.email, name: user.displayName };
-
-                // Перевірка в базі даних: чи здавав вже цей користувач
-                db.collection("submissions").where("email", "==", user.email).get().then((querySnapshot) => {
-                    if (!querySnapshot.empty) {
-                        alert("⚠️ Ви вже проходили цей тест раніше! Повторна спроба неможлива.");
-                        auth.signOut();
-                        return;
-                    }
-                    document.getElementById('step-welcome').classList.add('hidden');
-                    document.getElementById('step-test').classList.remove('hidden');
-                    document.getElementById('user-display-email').textContent = `Account: ${user.email}`;
-                }).catch(err => {
-                    document.getElementById('step-welcome').classList.add('hidden');
-                    document.getElementById('step-test').classList.remove('hidden');
-                    document.getElementById('user-display-email').textContent = `Account: ${user.email}`;
-                });
-            }).catch((error) => {
-                console.error("Помилка авторизації:", error);
-                alert("Не вдалося увійти через Google. Будь ласка, спробуйте ще раз.");
+            const mockEmail = "student7z@vyshneve-lyceum1.ua";
+            currentUser = { email: mockEmail };
+            
+            db.collection("submissions").where("email", "==", mockEmail).get().then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    alert("Ви вже проходили цей тест раніше! Повторна спроба неможлива.");
+                    return;
+                }
+                document.getElementById('step-welcome').classList.add('hidden');
+                document.getElementById('step-test').classList.remove('hidden');
+                document.getElementById('user-display-email').textContent = `Account: ${mockEmail}`;
+            }).catch(err => {
+                document.getElementById('step-welcome').classList.add('hidden');
+                document.getElementById('step-test').classList.remove('hidden');
+                document.getElementById('user-display-email').textContent = `Account: ${mockEmail}`;
             });
         }
 
